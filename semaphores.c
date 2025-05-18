@@ -36,26 +36,23 @@ int main(int argc, char *argv[])
     {
     case 'c':
 
-        if (argc < 4)
-        {
+        if (argc < 4){
             fprintf(stderr, "Uso: %s -c semaforo valor\n", argv[0]);
             exit(EXIT_FAILURE);
         }
 
         int valor = atoi(argv[3]);
-
+        // se crea el semaforo
         sem_t *sem_o = sem_open(argv[2], O_CREAT, 0644, valor);
 
-        if (sem_o == SEM_FAILED)
-        {
+        if (sem_o == SEM_FAILED){
             perror("sem_open");
             exit(EXIT_FAILURE);
         }
 
         printf("Semáforo '%s' creado con valor inicial %d\n", argv[2], valor);
 
-        if (sem_close(sem_o) == -1)
-        {
+        if (sem_close(sem_o) == -1){
             perror("sem_close");
         }
         break;
