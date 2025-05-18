@@ -4,8 +4,7 @@
 #include <fcntl.h>
 #include <semaphore.h>
 
-void usage(char *argv[])
-{
+void usage(char *argv[]) {
     fprintf(stderr, "Uso: %s [OPCION] [PARAMETRO]\n", argv[0]);
     fprintf(stderr, "Opciones:\n");
     fprintf(stderr, "\t-c semaforo valor\tcrea semáforo con el nombre y valor inicial indicado.\n");
@@ -16,27 +15,23 @@ void usage(char *argv[])
     fprintf(stderr, "\t-h\t\t\timprime este mensaje.\n");
 }
 
-int main(int argc, char *argv[])
-{
-    if (argc < 2)
-    {
+int main(int argc, char *argv[]) {
+    if (argc < 2) {
         usage(argv);
         exit(EXIT_FAILURE);
     }
 
-    if (argv[1][0] != '-')
-    {
+    if (argv[1][0] != '-') {
         usage(argv);
         exit(EXIT_FAILURE);
     }
 
     char option = argv[1][1];
 
-    switch (option)
-    {
+    switch (option) {
     case 'c':
 
-        if (argc < 4){
+        if (argc < 4) {
             fprintf(stderr, "Uso: %s -c semaforo valor\n", argv[0]);
             exit(EXIT_FAILURE);
         }
@@ -45,14 +40,14 @@ int main(int argc, char *argv[])
         // se crea el semaforo
         sem_t *sem_o = sem_open(argv[2], O_CREAT, 0644, valor);
 
-        if (sem_o == SEM_FAILED){
+        if (sem_o == SEM_FAILED) {
             perror("sem_open");
             exit(EXIT_FAILURE);
         }
 
         printf("Semáforo '%s' creado con valor inicial %d\n", argv[2], valor);
 
-        if (sem_close(sem_o) == -1){
+        if (sem_close(sem_o) == -1) {
             perror("sem_close");
         }
         break;
@@ -70,6 +65,7 @@ int main(int argc, char *argv[])
             perror("sem_open");
             exit(EXIT_FAILURE);
         }
+
         // aca se realizaria el UP
         if (sem_post(sem_u) != -1) {
             printf("Se realizó UP sobre el semáforo '%s'\n", argv[2]);
@@ -145,7 +141,7 @@ int main(int argc, char *argv[])
         int valor_actual;
         if (sem_getvalue(sem_i, &valor_actual) != -1) {
             printf("El valor actual del semáforo '%s' es: %d\n", argv[2], valor_actual);
-        } else{
+        } else {
             perror("sem_getvalue");
         }
 

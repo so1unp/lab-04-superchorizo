@@ -32,8 +32,7 @@ static pthread_mutex_t screen = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t tenedores[N]; // Un mutex por tenedor
 
 // Imprime en la posición (x,y) la cadena *fmt.
-void print(int y, int x, const char *fmt, ...)
-{
+void print(int y, int x, const char *fmt, ...) {
     va_list ap;
     va_start(ap, fmt);
 
@@ -44,18 +43,30 @@ void print(int y, int x, const char *fmt, ...)
 }
 
 // El filosofo come.
-void eat(int id)
-{
+void eat(int id) {
     int f[2]; // tenedores
     int ration, i;
 
+    // Filósofos impares cambian el orden para evitar deadlock
+    if (id % 2 == 0) {
+        f[0] = id;
+        f[1] = (id + 1) % N;
+    } else {
+        f[0] = (id + 1) % N;
+        f[1] = id;
+    }
+
     // los tenedores a tomar
-    f[0] = id;
-    f[1] = (id + 1) % N;
+    // f[0] = id;
+    // f[1] = (id + 1) % N;
 
     clear_eol(id);
     print(id, 18, "..oO (necesito tenedores)");
     sleep(2);
+
+    // Toma los tenedores con mutex
+    pthread_mutex_lock(&tenedores[f[0]]);
+    pthread_mutex_lock(&tenedores[f[1]]);
 
     // Toma los tenedores.
     // for (i = 0; i < 2; i++) {
@@ -69,10 +80,6 @@ void eat(int id)
     //     sleep(3);
     // }
 
-    // Toma los tenedores con mutex
-    pthread_mutex_lock(&tenedores[f[0]]);
-    pthread_mutex_lock(&tenedores[f[1]]);
-
     // Mostrar visualmente
     clear_eol(id);
     print(id, 18, "tenedor%d", f[0]);
@@ -81,8 +88,7 @@ void eat(int id)
     sleep(1);
 
     // Come durante un tiempo.
-    for (i = 0, ration = 3 + rand() % 8; i < ration; i++)
-    {
+    for (i = 0, ration = 3 + rand() % 8; i < ration; i++) {
         print(id, 40 + i * 4, "ñam");
         // sleep(1 + (rand() % segs_come));
         sleep((unsigned int)(1 + rand() % segs_come));
@@ -93,13 +99,11 @@ void eat(int id)
 }
 
 // El filosofo piensa.
-void think(int id)
-{
+void think(int id) {
     int i, t;
     char buf[64] = {0};
 
-    do
-    {
+    do {
         clear_eol(id);
 
         // Piensa en algo...
@@ -118,55 +122,47 @@ void think(int id)
     } while (t);
 }
 
-void *filosofo(void *p)
-{
+void *filosofo(void *p) {
     int id = *(int *)p;
     print(id, 1, "%15s", names[id]);
-    while (1)
-    {
+    while (1) {
         think(id);
         eat(id);
     }
 }
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     int i;
     int id[N]; // id para cada filosofo.
     pthread_t tid[N];
 
-    if (argc != 3)
-    {
+    if (argc != 3) {
         fprintf(stderr, "Uso: %s segs-piensa segs-come\n", argv[0]);
         fprintf(stderr, "\tsegs-piensa:\tmáxima cantidad de segundos que puede estar pensando.\n");
         fprintf(stderr, "\tsegs-come:\tmáxima cantidad de segundos que puede estar comiendo.\n");
         exit(EXIT_FAILURE);
     }
 
-    if ((segs_piensa = atoi(argv[1])) <= 0)
-    {
+    if ((segs_piensa = atoi(argv[1])) <= 0) {
         fprintf(stderr, "segs-piensa debe ser mayor que cero.\n");
         exit(EXIT_FAILURE);
     }
 
-    if ((segs_come = atoi(argv[2])) <= 0)
-    {
+    if ((segs_come = atoi(argv[2])) <= 0) {
         fprintf(stderr, "segs-come debe ser mayor que cero.\n");
         exit(EXIT_FAILURE);
     }
 
     // srand(getpid());
     srand((unsigned int)getpid());
-    
-    for (i = 0; i < N; i++)
-    {
+
+    for (i = 0; i < N; i++) {
         pthread_mutex_init(&tenedores[i], NULL);
     }
 
     clear();
 
-    for (i = 0; i < N; i++)
-    {
+    for (i = 0; i < N; i++) {
         id[i] = i;
         pthread_create(tid + i, 0, filosofo, id + i);
     }
