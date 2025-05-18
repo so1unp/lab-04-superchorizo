@@ -172,6 +172,20 @@ int main(int argc, char **argv)
     pthread_create(&producer_t, NULL, producer, params);
     pthread_create(&consumer_t, NULL, consumer, params);
 
+    // Esperar a que los hilos terminen
+    //  pthread_join(producer_t, NULL);
+    //  pthread_join(consumer_t, NULL);
+
+    // Destruir mutex y semáforos
+    //  pthread_mutex_destroy(&params->mutex);
+    //  sem_destroy(&params->empty_slots);
+    // sem_destroy(&params->filled_slots);
+
+    // Liberar memoria
+    // free(buf->buf);
+    // free(buf);
+    // free(params);
+
     // Mi trabajo ya esta hecho ...
     pthread_exit(NULL);
 }
