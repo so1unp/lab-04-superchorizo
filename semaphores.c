@@ -78,13 +78,13 @@ int main(int argc, char *argv[])
         }
 
         // aca se realizaria el UP
-        if (sem_post(sem_u) == -1)
+        if (sem_post(sem_u) != -1)
         {
-            perror("sem_post");
+            printf("Se realizó UP sobre el semáforo '%s'\n", argv[2]);
         }
         else
         {
-            printf("Se realizó UP sobre el semáforo '%s'\n", argv[2]);
+            perror("sem_post");
         }
 
         if (sem_close(sem_u) == -1)
@@ -93,7 +93,35 @@ int main(int argc, char *argv[])
         }
         break;
     case 'd':
-        // realiza una operacion _down_
+        if (argc < 3)
+        {
+            fprintf(stderr, "Uso: %s -d <nombre_semaforo>\n", argv[0]);
+            exit(EXIT_FAILURE);
+        }
+
+        // abre el semaforo si y solo si existe.
+        sem_t *sem_d = sem_open(argv[2], 0);
+
+        if (sem_d == SEM_FAILED)
+        {
+            perror("sem_open");
+            exit(EXIT_FAILURE);
+        }
+
+        // se realiza un DOWN
+        if (sem_wait(sem_d) != -1)
+        {
+            printf("Se realizó DOWN sobre el semáforo '%s'\n", argv[2]);
+        }
+        else
+        {
+            perror("sem_wait");
+        }
+
+        if (sem_close(sem_d) == -1)
+        {
+            perror("sem_close");
+        }
         break;
     case 'b':
 
@@ -127,7 +155,6 @@ int main(int argc, char *argv[])
         }
         break;
     case 'i':
-        // informacion
 
         break;
     case 'h':
