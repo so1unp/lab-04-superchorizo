@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
     switch (option)
     {
     case 'c':
-    
+
         if (argc < 4)
         {
             fprintf(stderr, "Uso: %s -c semaforo valor\n", argv[0]);
@@ -61,7 +61,36 @@ int main(int argc, char *argv[])
         break;
 
     case 'u':
-        // realiza un _up_
+
+        if (argc < 3)
+        {
+            fprintf(stderr, "Uso: %s -u <nombre_semaforo>\n", argv[0]);
+            exit(EXIT_FAILURE);
+        }
+
+        // abre el semaforo si y solo si existe.
+        sem_t *sem_u = sem_open(argv[2], 0);
+
+        if (sem_u == SEM_FAILED)
+        {
+            perror("sem_open");
+            exit(EXIT_FAILURE);
+        }
+
+        // aca se realizaria el UP
+        if (sem_post(sem_u) == -1)
+        {
+            perror("sem_post");
+        }
+        else
+        {
+            printf("Se realizó UP sobre el semáforo '%s'\n", argv[2]);
+        }
+
+        if (sem_close(sem_u) == -1)
+        {
+            perror("sem_close");
+        }
         break;
     case 'd':
         // realiza una operacion _down_
