@@ -156,6 +156,36 @@ int main(int argc, char *argv[])
         break;
     case 'i':
 
+        if (argc < 3)
+        {
+            fprintf(stderr, "Uso: %s -i <nombre_semaforo>\n", argv[0]);
+            exit(EXIT_FAILURE);
+        }
+
+        // abre el semaforo si y solo si existe.
+        sem_t *sem_i = sem_open(argv[2], 0);
+        if (sem_i == SEM_FAILED)
+        {
+            perror("sem_open");
+            exit(EXIT_FAILURE);
+        }
+
+        // aca te dice la informacion actual del semaforo
+        int valor_actual;
+        if (sem_getvalue(sem_i, &valor_actual) != -1)
+        {
+            printf("El valor actual del semáforo '%s' es: %d\n", argv[2], valor_actual);
+        }
+        else
+        {
+            perror("sem_getvalue");
+        }
+
+        if (sem_close(sem_i) == -1)
+        {
+            perror("sem_close");
+        }
+
         break;
     case 'h':
         usage(argv);
